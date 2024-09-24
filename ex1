@@ -1,0 +1,337 @@
+import java.util.*;
+
+// ------------------ OBSERVER PATTERN ------------------
+
+// Observer interface
+interface TempObserver {
+    void onTemperatureChange(float temp);
+}
+
+// Concrete Observer: Display devices
+class MobileDisplay implements TempObserver {
+    public void onTemperatureChange(float temp) {
+        System.out.println("Mobile display shows temperature: " + temp + "°C");
+    }
+}
+
+class MonitorDisplay implements TempObserver {
+    public void onTemperatureChange(float temp) {
+        System.out.println("Monitor display shows temperature: " + temp + "°C");
+    }
+}
+
+// Subject: Weather Monitoring
+class WeatherMonitoringSystem {
+    private List<TempObserver> observers = new ArrayList<>();
+    private float currentTemp;
+
+    public void registerObserver(TempObserver observer) {
+        observers.add(observer);
+    }
+
+    public void unregisterObserver(TempObserver observer) {
+        observers.remove(observer);
+    }
+
+    public void updateTemperature(float temp) {
+        this.currentTemp = temp;
+        notifyAllObservers();
+    }
+
+    private void notifyAllObservers() {
+        for (TempObserver observer : observers) {
+            observer.onTemperatureChange(currentTemp);
+        }
+    }
+}
+
+// ------------------ STRATEGY PATTERN ------------------
+
+// Strategy interface
+interface ArraySortingStrategy {
+    void performSort(int[] data);
+}
+
+// Concrete strategies
+class SelectionSort implements ArraySortingStrategy {
+    public void performSort(int[] data) {
+        System.out.println("Sorting array using Selection Sort");
+        for (int i = 0; i < data.length - 1; i++) {
+            int minIndex = i;
+            for (int j = i + 1; j < data.length; j++) {
+                if (data[j] < data[minIndex]) {
+                    minIndex = j;
+                }
+            }
+            int temp = data[minIndex];
+            data[minIndex] = data[i];
+            data[i] = temp;
+        }
+    }
+}
+
+class MergeSort implements ArraySortingStrategy {
+    public void performSort(int[] data) {
+        System.out.println("Sorting array using Merge Sort");
+        mergeSort(data, 0, data.length - 1);
+    }
+
+    private void mergeSort(int[] data, int left, int right) {
+        if (left < right) {
+            int mid = (left + right) / 2;
+            mergeSort(data, left, mid);
+            mergeSort(data, mid + 1, right);
+            merge(data, left, mid, right);
+        }
+    }
+
+    private void merge(int[] data, int left, int mid, int right) {
+        int n1 = mid - left + 1;
+        int n2 = right - mid;
+
+        int[] leftArray = new int[n1];
+        int[] rightArray = new int[n2];
+
+        for (int i = 0; i < n1; i++)
+            leftArray[i] = data[left + i];
+        for (int j = 0; j < n2; j++)
+            rightArray[j] = data[mid + 1 + j];
+
+        int i = 0, j = 0;
+        int k = left;
+        while (i < n1 && j < n2) {
+            if (leftArray[i] <= rightArray[j]) {
+                data[k] = leftArray[i];
+                i++;
+            } else {
+                data[k] = rightArray[j];
+                j++;
+            }
+            k++;
+        }
+
+        while (i < n1) {
+            data[k] = leftArray[i];
+            i++;
+            k++;
+        }
+
+        while (j < n2) {
+            data[k] = rightArray[j];
+            j++;
+            k++;
+        }
+    }
+}
+
+// Context class
+class SortingContext {
+    private ArraySortingStrategy strategy;
+
+    public void setStrategy(ArraySortingStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public void executeSort(int[] data) {
+        strategy.performSort(data);
+    }
+}
+
+// ------------------ SINGLETON PATTERN ------------------
+
+// Singleton class
+class ConnectionManager {
+    private static ConnectionManager instance;
+
+    private ConnectionManager() {
+        System.out.println("Creating a new database connection...");
+    }
+
+    public static synchronized ConnectionManager getInstance() {
+        if (instance == null) {
+            instance = new ConnectionManager();
+        }
+        return instance;
+    }
+
+    public void runQuery(String query) {
+        System.out.println("Running Query: " + query);
+    }
+}
+
+// ------------------ FACTORY PATTERN ------------------
+
+// Product interface
+interface GeometryShape {
+    void sketch();
+}
+
+// Concrete products
+class Rectangle implements GeometryShape {
+    public void sketch() {
+        System.out.println("Drawing a Rectangle");
+    }
+}
+
+class Triangle implements GeometryShape {
+    public void sketch() {
+        System.out.println("Drawing a Triangle");
+    }
+}
+
+// Factory class
+class ShapeFactoryGenerator {
+    public GeometryShape createShape(String shapeType) {
+        if (shapeType == null) {
+            return null;
+        }
+        if (shapeType.equalsIgnoreCase("RECTANGLE")) {
+            return new Rectangle();
+        } else if (shapeType.equalsIgnoreCase("TRIANGLE")) {
+            return new Triangle();
+        }
+        return null;
+    }
+}
+
+// ------------------ ADAPTER PATTERN ------------------
+
+// Existing interface
+interface NewPaymentProcessor {
+    void handlePayment(int amount);
+}
+
+// Legacy class (adaptee)
+class LegacyPaymentSystem {
+    public void initiatePayment(double amount) {
+        System.out.println("Processing a payment of: $" + amount + " via the legacy system.");
+    }
+}
+
+// Adapter class
+class PaymentSystemAdapter implements NewPaymentProcessor {
+    private LegacyPaymentSystem legacySystem;
+
+    public PaymentSystemAdapter(LegacyPaymentSystem legacySystem) {
+        this.legacySystem = legacySystem;
+    }
+
+    public void handlePayment(int amount) {
+        legacySystem.initiatePayment(amount);
+    }
+}
+
+// ------------------ DECORATOR PATTERN ------------------
+
+// Component interface
+interface Beverage {
+    String getDescription();
+    double cost();
+}
+
+// Concrete component
+class BasicBeverage implements Beverage {
+    public String getDescription() {
+        return "Basic Beverage";
+    }
+
+    public double cost() {
+        return 1.5;
+    }
+}
+
+// Decorator class
+abstract class BeverageDecorator implements Beverage {
+    protected Beverage wrappedBeverage;
+
+    public BeverageDecorator(Beverage beverage) {
+        this.wrappedBeverage = beverage;
+    }
+
+    public String getDescription() {
+        return wrappedBeverage.getDescription();
+    }
+
+    public double cost() {
+        return wrappedBeverage.cost();
+    }
+}
+
+// Concrete decorators
+class WhipDecorator extends BeverageDecorator {
+    public WhipDecorator(Beverage beverage) {
+        super(beverage);
+    }
+
+    public String getDescription() {
+        return wrappedBeverage.getDescription() + ", Whip";
+    }
+
+    public double cost() {
+        return wrappedBeverage.cost() + 0.7;
+    }
+}
+
+class CaramelDecorator extends BeverageDecorator {
+    public CaramelDecorator(Beverage beverage) {
+        super(beverage);
+    }
+
+    public String getDescription() {
+        return wrappedBeverage.getDescription() + ", Caramel";
+    }
+
+    public double cost() {
+        return wrappedBeverage.cost() + 0.3;
+    }
+}
+
+// ------------------ MAIN CLASS ------------------
+
+public class Exercise2 {
+    public static void main(String[] args) {
+        // 1. Observer Pattern Demo
+        System.out.println("---- Observer Pattern Demo ----");
+        WeatherMonitoringSystem monitorSystem = new WeatherMonitoringSystem();
+        TempObserver mobileDisplay = new MobileDisplay();
+        TempObserver monitorDisplay = new MonitorDisplay();
+        monitorSystem.registerObserver(mobileDisplay);
+        monitorSystem.registerObserver(monitorDisplay);
+        monitorSystem.updateTemperature(28.7f);
+
+        // 2. Strategy Pattern Demo
+        System.out.println("\n---- Strategy Pattern Demo ----");
+        int[] dataArray = {9, 1, 6, 4, 3};
+        SortingContext sortingContext = new SortingContext();
+        sortingContext.setStrategy(new SelectionSort());
+        sortingContext.executeSort(dataArray);
+        sortingContext.setStrategy(new MergeSort());
+        sortingContext.executeSort(dataArray);
+
+        // 3. Singleton Pattern Demo
+        System.out.println("\n---- Singleton Pattern Demo ----");
+        ConnectionManager conn1 = ConnectionManager.getInstance();
+        conn1.runQuery("SELECT * FROM products");
+
+        // 4. Factory Pattern Demo
+        System.out.println("\n---- Factory Pattern Demo ----");
+        ShapeFactoryGenerator shapeGenerator = new ShapeFactoryGenerator();
+        GeometryShape rectangle = shapeGenerator.createShape("RECTANGLE");
+        rectangle.sketch();
+        GeometryShape triangle = shapeGenerator.createShape("TRIANGLE");
+        triangle.sketch();
+
+        // 5. Adapter Pattern Demo
+        System.out.println("\n---- Adapter Pattern Demo ----");
+        LegacyPaymentSystem legacySys = new LegacyPaymentSystem();
+        NewPaymentProcessor newPayment = new PaymentSystemAdapter(legacySys);
+        newPayment.handlePayment(250);
+
+        // 6. Decorator Pattern Demo
+        System.out.println("\n---- Decorator Pattern Demo ----");
+        Beverage beverage = new BasicBeverage();
+        beverage = new WhipDecorator(beverage);
+        beverage = new CaramelDecorator(beverage);
+        System.out.println(beverage.getDescription() + " costs $" + beverage.cost());
+    }
+}
